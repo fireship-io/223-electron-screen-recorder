@@ -1,0 +1,16 @@
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+
+video {
+  width: 100%;
+  height: auto;
+}
+
+body {
+  text-align: center;
+  padding-top: 20px;
+}
