@@ -101,6 +101,8 @@ async function handleStop(e) {
     defaultPath: `vid-${Date.now()}.webm`
   });
 
+  if (filePath) {
+    writeFile(filePath, buffer, () => console.log('video saved successfully!'));
+  }
 
-  writeFile(filePath, buffer, () => console.log('video saved successfully!'));
 }
