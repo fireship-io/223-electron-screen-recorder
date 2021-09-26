@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, MenuItem, dialog } = require('electron');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -12,7 +12,8 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false,
     }
   });
 
@@ -47,3 +48,23 @@ app.on('activate', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
+
+// see https://github.com/fireship-io/223-electron-screen-recorder/issues/19#issuecomment-927317429
+ipcMain.handle('electron-menu', async (event, sources) => {
+  const videoOptionsMenu = new Menu();
+  sources.forEach(source => {
+        videoOptionsMenu.append(new MenuItem({ 
+            label: source.name, 
+            click: () => event.sender.send('menuselect', source)
+        }));
+    });
+  videoOptionsMenu.popup();
+})
+
+ipcMain.handle('electron-dialog', async (event, settings) => {
+  const { filePath } = await dialog.showSaveDialog({
+    buttonLabel: settings.buttonLabel,
+    defaultPath: settings.defaultPath
+  });
+  return filePath;
+})
