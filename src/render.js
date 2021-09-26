@@ -1,8 +1,6 @@
-const { desktopCapturer, remote } = require('electron');
+const { desktopCapturer, ipcRenderer } = require('electron');
 
 const { writeFile } = require('fs');
-
-const { dialog, Menu } = remote;
 
 // Global state
 let mediaRecorder; // MediaRecorder instance to capture footage
@@ -35,18 +33,14 @@ async function getVideoSources() {
     types: ['window', 'screen']
   });
 
-  const videoOptionsMenu = Menu.buildFromTemplate(
-    inputSources.map(source => {
-      return {
-        label: source.name,
-        click: () => selectSource(source)
-      };
-    })
-  );
+  const sources = inputSources.map(source => ({'name': source.name, 'id': source.id}));
+  await ipcRenderer.invoke('electron-menu', sources);
 
-
-  videoOptionsMenu.popup();
 }
+
+ipcRenderer.on('menuselect', (event, source) => {
+    selectSource(source)
+})
 
 // Change the videoSource window to record
 async function selectSource(source) {
@@ -95,11 +89,10 @@ async function handleStop(e) {
   });
 
   const buffer = Buffer.from(await blob.arrayBuffer());
-
-  const { filePath } = await dialog.showSaveDialog({
-    buttonLabel: 'Save video',
-    defaultPath: `vid-${Date.now()}.webm`
-  });
+  
+  const filePath = await ipcRenderer.invoke('electron-dialog', 
+    {'defaultPath': `myvid-${Date.now()}.webm`, 'buttonLabel': 'Save recorded video'}
+  );
 
   if (filePath) {
     writeFile(filePath, buffer, () => console.log('video saved successfully!'));
