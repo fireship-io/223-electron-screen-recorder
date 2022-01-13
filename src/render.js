@@ -6,7 +6,7 @@ const { dialog, Menu } = remote;
 
 // Global state
 let mediaRecorder; // MediaRecorder instance to capture footage
-const recordedChunks = [];
+let recordedChunks = [];
 
 // Buttons
 const videoElement = document.querySelector('video');
@@ -105,4 +105,5 @@ async function handleStop(e) {
     writeFile(filePath, buffer, () => console.log('video saved successfully!'));
   }
 
+  recordedChunks = [];
 }
